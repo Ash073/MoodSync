@@ -1,5 +1,5 @@
 // backend/routes/userRoutes.js
-const express = import("express");
+import express from"express";
 const router = express.Router();
 const { registerUser, loginUser } = import("../controllers/userController");
 
