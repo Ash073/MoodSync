@@ -1,5 +1,5 @@
 // backend/models/Mood.js
-const mongoose = import("mongoose");
+import mongoose from "mongoose";
 
 const moodSchema = new mongoose.Schema({
   mood: {
@@ -23,5 +23,5 @@ const moodSchema = new mongoose.Schema({
     required: true,
   },
 }, { timestamps: true });
-
-module.exports = mongoose.model("Mood", moodSchema);
+const Mood = mongoose.model("Mood", moodSchema);
+export default Mood;
