@@ -1,9 +1,9 @@
 // backend/controllers/userController.js
-const User = import("../models/User.js");
-const bcrypt = import("bcryptjs");
-const jwt = import("jsonwebtoken");
+import User from "../models/User.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-exports.registerUser = async (req, res) => {
+export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -16,11 +16,12 @@ exports.registerUser = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
+    console.error("Register Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-exports.loginUser = async (req, res) => {
+export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -33,6 +34,7 @@ exports.loginUser = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (err) {
+    console.error("Login Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

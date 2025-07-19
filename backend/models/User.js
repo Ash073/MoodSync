@@ -1,5 +1,5 @@
 // backend/models/User.js
-const mongoose = import("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   name: {
