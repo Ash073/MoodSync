@@ -30,7 +30,7 @@ const getAccessToken = async () => {
   return accessToken;
 };
 
-const getTracksByMood = async (mood, language = "English") => {
+export const getTracksByMood = async (mood, language = "English") => {
   const token = await getAccessToken();
 
   const q = `${mood} ${language}`;
