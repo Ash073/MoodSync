@@ -1,5 +1,5 @@
 // backend/models/Mood.js
-const mongoose = require("mongoose");
+const mongoose = import("mongoose");
 
 const moodSchema = new mongoose.Schema({
   mood: {

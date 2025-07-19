@@ -1,7 +1,7 @@
 // backend/routes/userRoutes.js
-const express = require("express");
+const express = import("express");
 const router = express.Router();
-const { registerUser, loginUser } = require("../controllers/userController");
+const { registerUser, loginUser } = import("../controllers/userController");
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
