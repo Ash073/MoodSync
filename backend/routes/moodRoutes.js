@@ -6,5 +6,6 @@ const protect = require("../middleware/authMiddleware");
 
 router.post("/", protect, saveMood);
 router.get("/", protect, getMoodHistory);
+export default router;
 
 module.exports = router;
