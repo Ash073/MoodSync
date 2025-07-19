@@ -10,11 +10,6 @@ import moodRoutes from "./routes/moodRoutes.js";
 // Load environment variables
 dotenv.config();
 
-// Import routes
-import userRoutes from "./routes/userRoutes.js";
-import moodRoutes from "./routes/moodRoutes.js";
-
-
 // Create Express app
 const app = express();
 

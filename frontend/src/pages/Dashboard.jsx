@@ -81,7 +81,6 @@ const Dashboard = () => {
     <p>No songs yet. Submit a mood above 👆</p>
   )}
 </div>
-
     </div>
   );
 };
