@@ -1,7 +1,7 @@
 // backend/controllers/moodController.js
-const Mood = import("../models/Mood");
-const User = import("../models/User");
-const { getTracksByMood } = import("../utils/spotify");
+const Mood = import("../models/Mood.js");
+const User = import("../models/User.js");
+const { getTracksByMood } = import("../utils/spotify.js");
 
 exports.saveMood = async (req, res) => {
   const { mood, language, recommendations } = req.body;

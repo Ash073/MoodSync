@@ -1,6 +1,6 @@
 // backend/middleware/authMiddleware.js
 const jwt = import("jsonwebtoken");
-const User = import("../models/User");
+const User = import("../models/User.js");
 
 const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;

@@ -1,5 +1,5 @@
 // backend/controllers/userController.js
-const User = import("../models/User");
+const User = import("../models/User.js");
 const bcrypt = import("bcryptjs");
 const jwt = import("jsonwebtoken");
 
