@@ -1,15 +1,19 @@
 // backend/server.js
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import userRoutes from "./routes/userRoutes.js";
+import moodRoutes from "./routes/moodRoutes.js";
+
 
 // Load environment variables
 dotenv.config();
 
 // Import routes
-const userRoutes = require("./routes/userRoutes");
-const moodRoutes = require("./routes/moodRoutes");
+import userRoutes from "./routes/userRoutes.js";
+import moodRoutes from "./routes/moodRoutes.js";
+
 
 // Create Express app
 const app = express();
