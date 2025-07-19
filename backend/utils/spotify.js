@@ -1,6 +1,6 @@
 // backend/utils/spotify.js
-const axios = require("axios");
-const qs = require("qs");
+import axios from "axios";
+import qs from "qs";
 
 let accessToken = null;
 let expiresAt = null;
