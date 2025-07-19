@@ -49,5 +49,4 @@ export const getTracksByMood = async (mood, language = "English") => {
     url: track.external_urls.spotify,
   }));
 };
-
-module.exports = { getTracksByMood };
+export{ getTracksByMood };
