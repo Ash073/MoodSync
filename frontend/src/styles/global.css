@@ -1,0 +1,15 @@
+body.light {
+  background-color: #fff;
+  color: #111;
+}
+
+body.dark {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+input, select, button {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
