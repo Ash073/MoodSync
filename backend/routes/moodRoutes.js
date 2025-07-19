@@ -1,9 +1,11 @@
 // backend/routes/moodRoutes.js
 import express from "express";
-const router = express.Router();
-const { saveMood, getMoodHistory } = import("../controllers/moodController.js");
-const protect = import("../middleware/authMiddleware.js");
+import { addMood, getMoods } from "../controllers/moodController.js";
+import protect from "../middleware/authMiddleware.js";
 
-router.post("/", protect, saveMood);
-router.get("/", protect, getMoodHistory);
+const router = express.Router();
+
+router.post("/", protect, addMood);
+router.get("/", protect, getMoods);
+
 export default router;
