@@ -23,5 +23,4 @@ const moodSchema = new mongoose.Schema({
     required: true,
   },
 }, { timestamps: true });
-const Mood = mongoose.model("Mood", moodSchema);
-export default Mood;
+export default mongoose.model("Mood", moodSchema);

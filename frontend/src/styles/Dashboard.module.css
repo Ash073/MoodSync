@@ -1,23 +1,132 @@
-.dashboard {
-  text-align: center;
+/* Dashboard.module.css */
+.dashboardContainer {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
   padding: 2rem;
-  /* styles/Dashboard.module.css */
+  box-sizing: border-box;
+  position: relative;
+}
 
-a {
-  color: var(--link-color); /* You can define this in App.css or index.css */
-  text-decoration: none;
+/* Top bar for logo + profile button (outside dashboard card) */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 10;
+}
+
+.brand {
+  font-size: 2.2rem;
   font-weight: bold;
+  color: #fff;
 }
 
-a:hover {
-  text-decoration: underline;
+.profileSection {
+  position: relative;
 }
 
-/* Optional: add a wrapper for better layout */
+.profileBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.profileBtn:hover {
+  transform: scale(1.1);
+  color: #bfd5ff;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: #fff;
+  color: #000;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  width: 180px;
+  text-align: left;
+  z-index: 10;
+}
+
+.dropdownMenu p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.dropdownMenu hr {
+  margin: 0.5rem 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+.dropdownMenu button {
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.dropdownMenu button:hover {
+  background-color: #e43e3e;
+}
+
 .dashboard {
-  padding: 2rem;
-  font-family: Arial, sans-serif;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  color: white;
+  text-align: center;
+  max-width: 700px;
+  width: 100%;
+  position: relative;
 }
+
+select,
+button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  margin: 0.5rem;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+button {
+  background-color: #1db954;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #7bc8ff;
+}
+
 .recommendationSection {
   margin-top: 2rem;
 }
@@ -30,26 +139,27 @@ a:hover {
 }
 
 .songCard {
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #222;
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s;
 }
 
 .songCard:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 
 .songTitle {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 0.3rem;
 }
 
 .songArtist {
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.95rem;
+  color: #444;
   margin-bottom: 0.5rem;
 }
 
@@ -57,15 +167,40 @@ a:hover {
   display: inline-block;
   background-color: #1db954;
   color: white;
-  text-decoration: none;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
   font-size: 0.85rem;
+  text-decoration: none;
 }
 
 .listenButton:hover {
   background-color: #169c45;
 }
 
+a {
+  color: #1db954;
+  text-decoration: none;
+  font-weight: bold;
+}
 
+a:hover {
+  text-decoration: underline;
+}
+
+/* Theme support */
+.dark {
+  color: #fff;
+}
+
+.light {
+  color: #000;
+}
+/* Transparent white heading and info text */
+.transparentWhiteText {
+  color: rgba(255, 255, 255, 0.85); /* soft white */
+}
+
+/* Optional lighter variant for subtext */
+.transparentWhiteSubtext {
+  color: rgba(255, 255, 255, 0.65); /* dimmer white for subtext */
 }
