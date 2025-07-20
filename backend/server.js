@@ -39,3 +39,7 @@ mongoose
     console.error(err.message || err);
     process.exit(1); // Exit with failure
   });
+  app.get("/", (req, res) => {
+  res.send("Mood Sync Backend is running 🚀");
+});
+
