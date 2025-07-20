@@ -4,6 +4,8 @@ import { FaUserCircle } from "react-icons/fa";
 import styles from "../styles/Dashboard.module.css";
 import pianoImage from "../assets/piano.jpg";
 
+const API = process.env.REACT_APP_API_BASE_URL; 
+
 const Dashboard = () => {
   const [mood, setMood] = useState("");
   const [language, setLanguage] = useState("English");
@@ -47,6 +49,17 @@ const Dashboard = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+  axios.get(`${API}/api/users/me`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+    .then(res => {
+      setUsername(res.data.name);
+    })
+    .catch(err => console.log(err));
+}, []);
+
 
   const handleSubmit = async () => {
     try {
