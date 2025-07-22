@@ -11,7 +11,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/users/register", form);
+      const res = await axios.post("https://moodsync-2-o7ws.onrender.com/api/users/register", form);
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch (err) {

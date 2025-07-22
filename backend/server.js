@@ -15,17 +15,17 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "https://mood-sync-eta.vercel.app/" ,
+  origin: '*',
   credentials: true
 }));
 app.use(express.json());
 
 // Routes
 app.use("/api/users", userRoutes);
-app.use("/api/moods", moodRoutes);
 
-// Log the MongoDB URI (for debug only — remove in production)
+app.use("/api/moods", moodRoutes);
 console.log("🔗 Connecting to:", process.env.MONGO_URI);
+// Log the MongoDB URI (for debug only — remove in production)
 
 // Connect to MongoDB
 mongoose
