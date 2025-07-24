@@ -51,6 +51,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
   axios.get(`${API}/api/users/me`, {
     headers: { Authorization: `Bearer ${token}` }
   })
