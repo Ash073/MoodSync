@@ -3,8 +3,9 @@ import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
 import styles from "../styles/Dashboard.module.css";
 import pianoImage from "../assets/piano.jpg";
+import { useNavigate } from "react-router-dom";
 
-const API = process.env.VITE_API_BASE_URL; 
+const API = process.env.VITE_API_BASE_URL;
 
 const Dashboard = () => {
   const [mood, setMood] = useState("");
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [username, setUsername] = useState("User");
   const dropdownRef = useRef();
+  const navigate = useNavigate(); // ✅ moved outside for logout
 
   useEffect(() => {
     document.body.className = theme;
@@ -27,16 +29,12 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
+          console.log("✅ User data from /me:", res.data); // debug
           setUsername(res.data.name);
         })
         .catch((err) => {
           console.error("Fetch user error:", err);
-        })
-        .then((res) => {
-         console.log("✅ User data from /me:", res.data); // debug
-         setUsername(res.data.name);
-})
-
+        });
     }
   }, []);
 
@@ -49,18 +47,6 @@ const Dashboard = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-  axios.get(`${API}/api/users/me`, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
-    .then(res => {
-      setUsername(res.data.name);
-    })
-    .catch(err => console.log(err));
-}, []);
-
 
   const handleSubmit = async () => {
     try {
@@ -84,7 +70,8 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    localStorage.removeItem("user");
+    navigate("/login"); // ✅ proper redirect
   };
 
   return (
@@ -170,4 +157,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
+ 
