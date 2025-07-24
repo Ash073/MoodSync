@@ -4,7 +4,7 @@ import { FaUserCircle } from "react-icons/fa";
 import styles from "../styles/Dashboard.module.css";
 import pianoImage from "../assets/piano.jpg";
 
-const API = process.env.REACT_APP_API_BASE_URL; 
+const API = process.env.VITE_API_BASE_URL; 
 
 const Dashboard = () => {
   const [mood, setMood] = useState("");
@@ -23,7 +23,7 @@ const Dashboard = () => {
     const token = localStorage.getItem("token");
     if (token) {
       axios
-        .get("https://moodsync-2-o7ws.onrender.com/api/users/me", {
+        .get("https://moodsync-2-o7ws.onrender.com /api/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
@@ -65,7 +65,7 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "https://moodsync-2-o7ws.onrender.com/api/moods",
+        "https://moodsync-2-o7ws.onrender.com /api/moods",
         { mood, language },
         {
           headers: {
