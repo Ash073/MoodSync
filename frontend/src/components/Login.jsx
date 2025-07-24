@@ -12,7 +12,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://moodsync-2-o7ws.onrender.com /api/users/login", {
+      const res = await axios.post("https://moodsync-2-o7ws.onrender.com/api/users/login", {
         email,
         password,
       });
