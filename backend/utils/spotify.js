@@ -32,20 +32,22 @@ const getAccessToken = async () => {
 
 export const getTracksByMood = async (mood, language = "English") => {
   const token = await getAccessToken();
+  const query = `${mood} ${language}`;
 
-  const q = `${mood} ${language}`;
-  const res = await axios.get(`https://api.spotify.com/v1/search`, {
+  const res = await axios.get("https://api.spotify.com/v1/search", {
     headers: { Authorization: `Bearer ${token}` },
     params: {
-      q,
+      q: query,
       type: "track",
-      limit: 5,
+      limit: 6,
     },
   });
 
   return res.data.tracks.items.map((track) => ({
     title: track.name,
-    artist: track.artists[0].name,
-    url: track.external_urls.spotify,
+    artist: track.artists?.[0]?.name || "Unknown Artist",
+    url: track.external_urls?.spotify || "#",
+    preview: track.preview_url, // can be null
+    image: track.album?.images?.[1]?.url || null,
   }));
 };

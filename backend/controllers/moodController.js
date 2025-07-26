@@ -4,13 +4,41 @@ import Mood from "../models/Mood.js";
 import User from "../models/User.js";
 import { getTracksByMood } from "../utils/spotify.js";
 
-// Add a new mood and get Spotify recommendations
+// Mood synonyms map
+const moodSynonyms = {
+  Happy: ["happy", "joyful", "excited", "cheerful", "delighted", "content", "glad"],
+  Sad: ["sad", "depressed", "down", "blue", "unhappy", "sorrowful", "heartbroken"],
+  Energetic: ["energetic", "pumped", "hyped", "active", "motivated"],
+  Relaxed: ["relaxed", "calm", "chill", "peaceful", "serene"],
+  Angry: ["angry", "furious", "mad", "irritated", "frustrated"],
+  Romantic: ["romantic", "love", "affection", "passionate"],
+  Lonely: ["lonely", "alone", "empty", "isolated"],
+  Nostalgic: ["nostalgic", "memory", "remember", "sentimental"],
+  Hopeful: ["hopeful", "optimistic", "positive", "uplifted"],
+  Fearful: ["afraid", "scared", "anxious", "nervous", "worried"]
+};
+
+// Mood detection from free-form sentence
+const detectMood = (text) => {
+  const lower = text.toLowerCase();
+  for (const mood in moodSynonyms) {
+    if (moodSynonyms[mood].some(word => lower.includes(word))) {
+      return mood;
+    }
+  }
+  return "Relaxed"; // fallback
+};
+
+// Add a new mood (detected from sentence) and get Spotify recommendations
 export const addMood = async (req, res) => {
-  const { mood, language } = req.body;
-  console.log("➡️ Mood Payload:", mood, language);
+  const { moodSentence, language = "English" } = req.body;
+  console.log("🧠 Mood sentence:", moodSentence);
   console.log("🔐 User from req:", req.user);
 
   try {
+    const mood = detectMood(moodSentence);
+    console.log("🔍 Detected Mood:", mood);
+
     const recommendations = await getTracksByMood(mood, language);
     console.log("🎵 Spotify Recommendations:", recommendations);
 
@@ -26,9 +54,9 @@ export const addMood = async (req, res) => {
     await user.save();
 
     console.log("✅ Mood saved successfully");
-    res.status(201).json({ recommendations });
+    res.status(201).json({ detectedMood: mood, recommendations });
   } catch (error) {
-    console.error("❌ Error adding mood:", error);
+    console.error("❌ Error adding mood:", error.message);
     res.status(500).json({ message: "Failed to add mood" });
   }
 };
@@ -39,7 +67,7 @@ export const getMoods = async (req, res) => {
     const moods = await Mood.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json(moods);
   } catch (error) {
-    console.error("❌ Error fetching moods:", error);
+    console.error("❌ Error fetching moods:", error.message);
     res.status(500).json({ message: "Failed to retrieve moods" });
   }
 };
