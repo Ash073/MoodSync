@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import styles from "../styles/Dashboard.module.css"; // Use CSS Module
+import styles from "../styles/Dashboard.module.css"; // CSS Module
 import { FaMusic } from "react-icons/fa";
+import pianoImage from "../assets/piano.jpg";
 
 const MoodPage = () => {
-  const [mood, setMood] = useState("");
+  const [moodInput, setMoodInput] = useState(""); // user-typed input
   const [language, setLanguage] = useState("English");
   const [darkMode, setDarkMode] = useState(false);
   const [recommendedSongs, setRecommendedSongs] = useState([]);
@@ -11,12 +12,23 @@ const MoodPage = () => {
   const toggleTheme = () => setDarkMode((prev) => !prev);
 
   const handleSaveMood = () => {
-    if (!mood) return;
-    // Simulate song fetch
+    if (!moodInput.trim()) {
+      alert("Please describe your mood!");
+      return;
+    }
+
+    // Dummy sentiment analysis simulation
+    let detectedMood = "Relaxed";
+    if (moodInput.toLowerCase().includes("happy")) detectedMood = "Happy";
+    else if (moodInput.toLowerCase().includes("sad")) detectedMood = "Sad";
+    else if (moodInput.toLowerCase().includes("energetic")) detectedMood = "Energetic";
+    else if (moodInput.toLowerCase().includes("angry")) detectedMood = "Angry";
+
+    // Simulated song recommendations
     setRecommendedSongs([
-      `🎵 ${mood} vibes - Track 1`,
-      `🎶 ${mood} melody - Track 2`,
-      `🎧 ${mood} beat - Track 3`,
+      `🎵 ${detectedMood} vibes - Track 1`,
+      `🎶 ${detectedMood} melody - Track 2`,
+      `🎧 ${detectedMood} beat - Track 3`,
     ]);
   };
 
@@ -32,48 +44,64 @@ const MoodPage = () => {
   }, []);
 
   return (
-    <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
-      <h1>🎭 Select Your Mood</h1>
+    <div
+      className={styles.dashboardContainer}
+      style={{
+        backgroundImage: `url(${pianoImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "100vh",
+      }}
+    >
+      <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
+        <h1>🎭 Describe Your Mood</h1>
 
-      <div className={styles.controls}>
-        <select onChange={(e) => setMood(e.target.value)} value={mood}>
-          <option value="">-- Select Mood --</option>
-          <option value="Happy">😊 Happy</option>
-          <option value="Sad">😢 Sad</option>
-          <option value="Energetic">💃 Energetic</option>
-          <option value="Relaxed">🧘 Relaxed</option>
-        </select>
+        <div className={styles.controls}>
+          {/* ⬇️ Mood Textarea instead of dropdown */}
+          <textarea
+            placeholder="How are you feeling today? Write something like 'I feel super energetic and excited!'"
+            value={moodInput}
+            onChange={(e) => setMoodInput(e.target.value)}
+            rows={4}
+            style={{ width: "100%", padding: "10px", borderRadius: "8px", fontSize: "1rem" }}
+          />
 
-        <select onChange={(e) => setLanguage(e.target.value)} value={language}>
-          <option value="English">English</option>
-          <option value="Hindi">Hindi</option>
-          <option value="Tamil">Tamil</option>
-          <option value="Punjabi">Punjabi</option>
-        </select>
+          {/* Language dropdown */}
+          <select onChange={(e) => setLanguage(e.target.value)} value={language}>
+            <option value="English">English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Tamil">Tamil</option>
+            <option value="Punjabi">Punjabi</option>
+            <option value="Telugu">Telugu</option>
+          </select>
 
-        <button onClick={handleSaveMood}>🎼 Save Mood</button>
-      </div>
+          {/* Save Mood Button */}
+          <button onClick={handleSaveMood}>🎼 Save Mood</button>
+        </div>
 
-      <button onClick={toggleTheme} className={styles.toggle}>
-        {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
-      </button>
+        {/* Theme Toggle */}
+        <button onClick={toggleTheme} className={styles.toggle}>
+          {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
+        </button>
 
-      <div className={styles.results}>
-        <h2>
-          <FaMusic /> Recommended Songs:
-        </h2>
-        {recommendedSongs.length === 0 ? (
-          <p>No songs yet. Submit a mood above 👆</p>
-        ) : (
-          <ul>
-            {recommendedSongs.map((song, idx) => (
-              <li key={idx}>{song}</li>
-            ))}
-          </ul>
-        )}
+        {/* Recommended Songs */}
+        <div className={styles.results}>
+          <h2><FaMusic /> Recommended Songs:</h2>
+          {recommendedSongs.length === 0 ? (
+            <p>No songs yet. Describe your mood above 👆</p>
+          ) : (
+            <ul>
+              {recommendedSongs.map((song, idx) => (
+                <li key={idx}>{song}</li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default MoodPage;
+

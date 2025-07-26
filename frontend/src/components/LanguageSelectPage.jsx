@@ -17,6 +17,7 @@ const LanguageSelectPage = () => {
         <option value="English">English</option>
         <option value="Hindi">Hindi</option>
         <option value="Tamil">Tamil</option>
+        <option value="Telugu">Telugu</option>
         {/* Add more languages */}
       </select>
       <button onClick={handleNext}>Continue</button>
