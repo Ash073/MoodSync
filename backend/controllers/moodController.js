@@ -1,4 +1,3 @@
-// controllers/moodController.js
 // backend/controllers/moodController.js
 import Mood from "../models/Mood.js";
 import User from "../models/User.js";
@@ -18,7 +17,7 @@ const moodSynonyms = {
   Fearful: ["afraid", "scared", "anxious", "nervous", "worried"]
 };
 
-// Mood detection from free-form sentence
+// Detect mood from free-form sentence
 const detectMood = (text) => {
   const lower = text.toLowerCase();
   for (const mood in moodSynonyms) {
@@ -29,32 +28,52 @@ const detectMood = (text) => {
   return "Relaxed"; // fallback
 };
 
-// Add a new mood (detected from sentence) and get Spotify recommendations
+// Add a new mood and fetch Spotify recommendations
 export const addMood = async (req, res) => {
   const { moodSentence, language = "English" } = req.body;
-  console.log("🧠 Mood sentence:", moodSentence);
-  console.log("🔐 User from req:", req.user);
 
   try {
+    if (!moodSentence) {
+      return res.status(400).json({ message: "Mood sentence is required" });
+    }
+
     const mood = detectMood(moodSentence);
     console.log("🔍 Detected Mood:", mood);
 
-    const recommendations = await getTracksByMood(mood, language);
-    console.log("🎵 Spotify Recommendations:", recommendations);
+    let recommendations = [];
+    try {
+      recommendations = await getTracksByMood(mood, language);
+    } catch (error) {
+      console.error("⚠ Spotify fetch failed:", error.message);
+    }
 
+    // Ensure recommendations are mapped correctly
+    const mappedRecs = (recommendations || []).map(track => ({
+      title: track.title || "Unknown Title",
+      artist: track.artist || "Unknown Artist",
+      albumImage: track.albumImage || "",
+      spotifyUrl: track.url || "",
+      preview: track.preview || null
+    }));
+
+    // Save mood to DB
     const newMood = await Mood.create({
       mood,
       language,
-      recommendations,
-      user: req.user._id,
+      recommendations: mappedRecs,
+      user: req.user?._id || null,
     });
 
-    const user = await User.findById(req.user._id);
-    user.moods.push(newMood._id);
-    await user.save();
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.moods.push(newMood._id);
+        await user.save();
+      }
+    }
 
     console.log("✅ Mood saved successfully");
-    res.status(201).json({ detectedMood: mood, recommendations });
+    res.status(201).json({ detectedMood: mood, recommendations: mappedRecs });
   } catch (error) {
     console.error("❌ Error adding mood:", error.message);
     res.status(500).json({ message: "Failed to add mood" });

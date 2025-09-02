@@ -27,6 +27,21 @@ app.use("/api/moods", moodRoutes);
 console.log("🔗 Connecting to:", process.env.MONGO_URI);
 // Log the MongoDB URI (for debug only — remove in production)
 
+app.post("/api/mood", (req, res) => {
+  const { mood } = req.body;
+  res.json({
+    detectedMood: "happy",
+    recommendations: [
+      {
+        name: "Song 1",
+        artist: "Artist A",
+        albumImage: null,
+        spotifyUrl: "https://open.spotify.com/track/example",
+      },
+    ],
+  });
+});
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {

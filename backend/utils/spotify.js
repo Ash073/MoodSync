@@ -1,53 +1,73 @@
-// backend/utils/spotify.js
-import axios from "axios";
-import qs from "qs";
+import SpotifyWebApi from "spotify-web-api-node";
+import dotenv from "dotenv";
 
-let accessToken = null;
-let expiresAt = null;
+dotenv.config();
 
-const getAccessToken = async () => {
-  if (accessToken && Date.now() < expiresAt) {
-    return accessToken;
+const spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+});
+
+// Request and set a fresh access token
+const setAccessToken = async () => {
+  try {
+    const tokenData = await spotifyApi.clientCredentialsGrant();
+    spotifyApi.setAccessToken(tokenData.body.access_token);
+    console.log("✅ Spotify access token set");
+  } catch (err) {
+    console.error("❌ Spotify token error:", err.message);
   }
+};
 
-  const tokenUrl = "https://accounts.spotify.com/api/token";
-  const data = qs.stringify({ grant_type: "client_credentials" });
+// Map moods to genres / search keywords
+const moodMap = {
+  Happy: ["happy", "joyful", "excited", "cheerful", "delighted", "content", "glad"],
+  Sad: ["sad", "depressed", "down", "blue", "unhappy", "sorrowful", "heartbroken","lonely"],
+  Energetic: ["energetic", "pumped", "hyped", "active", "motivated"],
+  Relaxed: ["relaxed", "calm", "chill", "peaceful", "serene"],
+  Angry: ["angry", "furious", "mad", "irritated", "frustrated"],
+  Romantic: ["romantic", "love", "affection", "passionate"],
+  Lonely: ["lonely", "alone", "empty", "isolated"],
+  Nostalgic: ["nostalgic", "memory", "remember", "sentimental"],
+  Hopeful: ["hopeful", "optimistic", "positive", "uplifted"],
+  Fearful: ["afraid", "scared", "anxious", "nervous", "worried"]
+};
 
-  const authHeader = Buffer.from(
-    `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-  ).toString("base64");
-
-  const res = await axios.post(tokenUrl, data, {
-    headers: {
-      Authorization: `Basic ${authHeader}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
-
-  accessToken = res.data.access_token;
-  expiresAt = Date.now() + res.data.expires_in * 1000;
-
-  return accessToken;
+const languageMap = {
+  English: {market: "US"},
+  Hindi: {market: "IN"},
+  Tamil: {market: "IN"},
+  Punjabi: {market: "IN"},
+  Telugu: {market: "IN"},
 };
 
 export const getTracksByMood = async (mood, language = "English") => {
-  const token = await getAccessToken();
-  const query = `${mood} ${language}`;
+  try {
+    // 1️⃣ Ensure valid token
+    if (!spotifyApi.getAccessToken()) {
+      await setAccessToken();
+    }
 
-  const res = await axios.get("https://api.spotify.com/v1/search", {
-    headers: { Authorization: `Bearer ${token}` },
-    params: {
-      q: query,
-      type: "track",
-      limit: 6,
-    },
-  });
+    // 2️⃣ Build search query
+    const keywords = moodMap[mood] || ["pop"];
+    const langInfo = languageMap[language] || languageMap.English;
+    const query = [...keywords, langInfo.keyword].filter(Boolean).join(" ");
 
-  return res.data.tracks.items.map((track) => ({
-    title: track.name,
-    artist: track.artists?.[0]?.name || "Unknown Artist",
-    url: track.external_urls?.spotify || "#",
-    preview: track.preview_url, // can be null
-    image: track.album?.images?.[1]?.url || null,
-  }));
+
+    // 3️⃣ Search tracks
+    const data = await spotifyApi.searchTracks(query, { limit: 5, market: langInfo.market });
+
+    // 4️⃣ Map tracks for frontend
+    return data.body.tracks.items.map(track => ({
+      title: track.name,
+      artist: track.artists.map(a => a.name).join(", "),
+      album: track.album.name || "Unknown Album",
+      preview: track.preview_url,
+      url: track.external_urls.spotify,
+      albumImage: track.album.images?.[0]?.url || "",
+    }));
+  } catch (err) {
+    console.error("❌ Spotify search error:", err.message);
+    return [];
+  }
 };

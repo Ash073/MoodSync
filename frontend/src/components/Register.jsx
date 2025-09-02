@@ -3,20 +3,33 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 import backgroundVideo from "../assets/background1.mp4";
+import api from "../utils/api.js";
 
-const Register = () => {
+const handleRegister = async (formData) => {
+  try {
+    const { data } = await api.post("/users/register", formData);
+    console.log("✅ Registration success:", data);
+  } catch (error) {
+    console.error("❌ Registration error:", error.response?.data || error.message);
+  }
+};
+function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://moodsync-2-o7ws.onrender.com/api/users/register", form);
+      const res = await axios.post("https://moodsync-2-o7ws.onrender.com/api/users/register", {
+        name: form.name,
+        email: form.email,
+        password: form.password
+      });
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch (err) {
       alert("Registration failed");
-      console.error("Registration error:", err.response?.data || err.message); 
+      console.error("Registration error:", err.response?.data || err.message);
     }
   };
 
@@ -35,22 +48,19 @@ const Register = () => {
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             placeholder="Name"
-            required
-          />
+            required />
           <input
             type="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="Email"
-            required
-          />
+            required />
           <input
             type="password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             placeholder="Password"
-            required
-          />
+            required />
           <button type="submit">Register</button>
         </form>
         <div className="login-link" onClick={() => navigate("/")}>
@@ -59,7 +69,7 @@ const Register = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Register;
 
