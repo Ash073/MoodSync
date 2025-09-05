@@ -17,7 +17,7 @@ const MoodPage = () => {
   const [spotifyToken, setSpotifyToken] = useState("");
 
   const connectSpotify = () => {
-    window.location.href = "http://moodsync-12.onrender:5000/api/auth/login";
+    window.location.href = "https://moodsync-12.onrender.com/api/auth/login";
   };
 
   // 🌗 Toggle theme
@@ -141,10 +141,10 @@ const MoodPage = () => {
       >
         <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
           <div className={styles.logo}>
-            <h2>MoodSync 🎧</h2>
+            <h2>MoodSync</h2>
           </div>
 
-          <h1>🎭 Describe Your Mood</h1>
+          <h1>Describe Your Mood</h1>
 
           {/* Mood input */}
           <div className={styles.controls}>
@@ -154,10 +154,11 @@ const MoodPage = () => {
               onChange={(e) => setMoodInput(e.target.value)}
               rows={4}
               style={{
+                fontFamily: "Arial, sans-serif",
                 width: "100%",
                 padding: "10px",
                 borderRadius: "8px",
-                fontSize: "1rem",
+                fontSize: "1.2rem",
               }}
             />
 
@@ -183,7 +184,7 @@ const MoodPage = () => {
           {/* Recommended songs */}
           <div className={styles.results}>
             <h2>
-              <FaMusic /> Recommended Songs:
+              Recommended Songs:
             </h2>
             {recommendedSongs.length === 0 ? (
               <p>No songs yet. Describe your mood above 👆</p>
