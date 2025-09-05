@@ -16,8 +16,11 @@ const MoodPage = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [spotifyToken, setSpotifyToken] = useState("");
 
-  const connectSpotify = () => {
-    window.location.href = "https://moodsync-12.onrender.com/api/auth/login";
+  const getSpotifyAuthUrl = () => {
+    const base = (api.defaults.baseURL || "").replace(/\/$/, "").replace(/\/api$/, "");
+    const url = `${base}/api/auth/login`;
+    try { console.log("➡️ Spotify auth URL:", url); } catch (_) {}
+    return url;
   };
 
   // 🌗 Toggle theme
@@ -221,7 +224,9 @@ const MoodPage = () => {
             ) : (
               <div>
                 <p>Connect your Spotify account to enable playback.</p>
-                <button onClick={connectSpotify}>Connect Spotify</button>
+                <a href={getSpotifyAuthUrl()}>
+                  <button type="button">Connect Spotify</button>
+                </a>
               </div>
             )}
           </div>
