@@ -30,7 +30,7 @@ const detectMood = (text) => {
 
 // Add a new mood and fetch Spotify recommendations
 export const addMood = async (req, res) => {
-  const { moodSentence, language = "English" } = req.body;
+  const { moodSentence, language } = req.body;
 
   try {
     if (!moodSentence) {

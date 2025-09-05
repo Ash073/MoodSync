@@ -5,19 +5,19 @@ import Register from "./components/Register";
 import InputMoodPage from "./components/InputMoodPage";
 import LanguageSelectPage from "./components/LanguageSelectPage";
 import Dashboard from "./components/MoodPage";
-import Navbar from "./components/Navbar";
+import SpotifyCallback from "./components/SpotifyCallback";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/" element={<Navbar />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/input-mood" element={<InputMoodPage />} />
         <Route path="/select-language" element={<LanguageSelectPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/spotify/callback" element={<SpotifyCallback />} />
       </Routes>
     </BrowserRouter>
   );

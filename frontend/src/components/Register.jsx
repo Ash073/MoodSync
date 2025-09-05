@@ -1,18 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Register.css";
 import backgroundVideo from "../assets/background1.mp4";
-import api from "../utils/api.js";
 
-const handleRegister = async (formData) => {
-  try {
-    const { data } = await api.post("/users/register", formData);
-    console.log("✅ Registration success:", data);
-  } catch (error) {
-    console.error("❌ Registration error:", error.response?.data || error.message);
-  }
-};
 function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
@@ -20,7 +12,7 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://moodsync-2-o7ws.onrender.com/api/users/register", {
+      const res = await api.post("/users/register", {
         name: form.name,
         email: form.email,
         password: form.password

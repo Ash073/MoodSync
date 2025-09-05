@@ -5,6 +5,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import moodRoutes from "./routes/moodRoutes.js";
+import spotifyRoutes from "./routes/spotifyRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 
 // Load environment variables
@@ -14,33 +16,16 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: '*',
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // Routes
 app.use("/api/users", userRoutes);
 
 app.use("/api/moods", moodRoutes);
-console.log("🔗 Connecting to:", process.env.MONGO_URI);
-// Log the MongoDB URI (for debug only — remove in production)
 
-app.post("/api/mood", (req, res) => {
-  const { mood } = req.body;
-  res.json({
-    detectedMood: "happy",
-    recommendations: [
-      {
-        name: "Song 1",
-        artist: "Artist A",
-        albumImage: null,
-        spotifyUrl: "https://open.spotify.com/track/example",
-      },
-    ],
-  });
-});
+app.use("/api/spotify", spotifyRoutes);
+app.use("/api/auth", authRoutes);
 
 // Connect to MongoDB
 mongoose

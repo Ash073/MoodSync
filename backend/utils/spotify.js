@@ -19,26 +19,25 @@ const setAccessToken = async () => {
   }
 };
 
-// Map moods to genres / search keywords
 const moodMap = {
-  Happy: ["happy", "joyful", "excited", "cheerful", "delighted", "content", "glad"],
-  Sad: ["sad", "depressed", "down", "blue", "unhappy", "sorrowful", "heartbroken","lonely"],
-  Energetic: ["energetic", "pumped", "hyped", "active", "motivated"],
-  Relaxed: ["relaxed", "calm", "chill", "peaceful", "serene"],
-  Angry: ["angry", "furious", "mad", "irritated", "frustrated"],
+  Happy: ["happy", "joyful", "excited", "cheerful", "delighted"],
+  Sad: ["sad", "depressed", "down", "blue", "unhappy"],
+  Energetic: ["energetic", "pumped", "hyped", "active"],
+  Relaxed: ["relaxed", "calm", "chill", "peaceful"],
+  Angry: ["angry", "furious", "mad", "irritated"],
   Romantic: ["romantic", "love", "affection", "passionate"],
   Lonely: ["lonely", "alone", "empty", "isolated"],
   Nostalgic: ["nostalgic", "memory", "remember", "sentimental"],
   Hopeful: ["hopeful", "optimistic", "positive", "uplifted"],
-  Fearful: ["afraid", "scared", "anxious", "nervous", "worried"]
+  Fearful: ["afraid", "scared", "anxious", "nervous", "worried"],
 };
 
 const languageMap = {
-  English: {market: "US"},
-  Hindi: {market: "IN"},
-  Tamil: {market: "IN"},
-  Punjabi: {market: "IN"},
-  Telugu: {market: "IN"},
+  English: { market: "US" },
+  Hindi: { market: "IN" },
+  Tamil: { market: "IN" },
+  Punjabi: { market: "IN" },
+  Telugu: { market: "IN" },
 };
 
 export const getTracksByMood = async (mood, language = "English") => {
@@ -51,11 +50,10 @@ export const getTracksByMood = async (mood, language = "English") => {
     // 2️⃣ Build search query
     const keywords = moodMap[mood] || ["pop"];
     const langInfo = languageMap[language] || languageMap.English;
-    const query = [...keywords, langInfo.keyword].filter(Boolean).join(" ");
-
+    const query = keywords.join(" ");
 
     // 3️⃣ Search tracks
-    const data = await spotifyApi.searchTracks(query, { limit: 5, market: langInfo.market });
+    const data = await spotifyApi.searchTracks(query, { limit: 10, market: langInfo.market });
 
     // 4️⃣ Map tracks for frontend
     return data.body.tracks.items.map(track => ({
@@ -71,3 +69,4 @@ export const getTracksByMood = async (mood, language = "English") => {
     return [];
   }
 };
+

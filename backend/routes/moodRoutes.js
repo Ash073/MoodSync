@@ -2,6 +2,7 @@
 import express from "express";
 import { addMood, getMoods } from "../controllers/moodController.js";
 import protect  from "../middleware/authMiddleware.js";
+import { getTracksByMood } from "../utils/spotify.js";
 
 const router = express.Router();
 

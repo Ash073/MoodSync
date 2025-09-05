@@ -15,13 +15,15 @@ const moodSchema = new mongoose.Schema({
     {
       title: String,
       artist: String,
-      url: String,
+      albumImage: String,
+      spotifyUrl: String,
+      preview: String,
     },
   ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
   },
 }, { timestamps: true });
 export default mongoose.model("Mood", moodSchema);

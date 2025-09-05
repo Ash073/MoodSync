@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 import backgroundVideo from "../assets/background1.mp4";
@@ -12,7 +13,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("https://moodsync-2-o7ws.onrender.com/api/users/login", {
+      const res = await api.post("/users/login", {
         email,
         password,
       });

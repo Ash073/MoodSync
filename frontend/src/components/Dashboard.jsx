@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import api from "../utils/api";
 import { FaUserCircle } from "react-icons/fa";
 import styles from "../styles/Dashboard.module.css";
 import pianoImage from "../assets/piano.jpg";
@@ -24,12 +25,9 @@ const Dashboard = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      axios
-        .get("https://moodsync-2-o7ws.onrender.com/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+      api
+        .get("/users/profile")
         .then((res) => {
-          console.log("✅ User data from /me:", res.data); // debug
           setUsername(res.data.name);
         })
         .catch((err) => {
@@ -51,14 +49,9 @@ const Dashboard = () => {
   const handleSubmit = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.post(
-        "https://moodsync-2-o7ws.onrender.com/api/moods",
-        { mood, language },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await api.post(
+        "/moods",
+        { moodSentence: mood, language }
       );
       setTracks(res.data.recommendations);
       alert("Mood saved with Spotify songs!");
@@ -137,7 +130,7 @@ const Dashboard = () => {
                   <div className={styles.songTitle}>{track.title}</div>
                   <div className={styles.songArtist}>{track.artist}</div>
                   <a
-                    href={track.url}
+                    href={track.spotifyUrl}
                     target="_blank"
                     rel="noreferrer"
                     className={styles.listenButton}

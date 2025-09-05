@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import styles from "../styles/Dashboard.module.css";
 import { FaMusic, FaUserCircle } from "react-icons/fa";
-import pianoImage from "../assets/piano.jpg";
+import SpotifyPlayer from "../components/SpotifyPlayer";
 
 const MoodPage = () => {
   const [moodInput, setMoodInput] = useState("");
@@ -14,9 +14,16 @@ const MoodPage = () => {
   const [error, setError] = useState("");
   const [showProfile, setShowProfile] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [spotifyToken, setSpotifyToken] = useState("");
 
+  const connectSpotify = () => {
+    window.location.href = "http://localhost:5000/api/auth/login";
+  };
+
+  // 🌗 Toggle theme
   const toggleTheme = () => setDarkMode((prev) => !prev);
 
+  // 🎭 Save mood & fetch recommendations
   const handleSaveMood = async () => {
     if (!moodInput.trim()) {
       alert("Please describe your mood!");
@@ -27,26 +34,21 @@ const MoodPage = () => {
     setError("");
 
     try {
-      const userToken = localStorage.getItem("token"); // your JWT
-      const res = await axios.post(
-        "http://localhost:5000/api/moods",
-        { moodSentence: moodInput, language },
-        { headers: { Authorization: `Bearer ${userToken}` } }
-      );
+      console.log("Sending mood and language:", { moodInput, language });
 
-      // Set mood and recommendations
+      const res = await api.post("/moods", { moodSentence: moodInput, language });
+
       setDetectedMood(res.data.detectedMood || "");
       setRecommendedSongs(res.data.recommendations || []);
     } catch (err) {
       console.error("❌ Error saving mood:", err);
-      setError(
-        err.response?.data?.message || "Something went wrong. Please try again."
-      );
+      setError(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // 🎨 Background gradient animation
   useEffect(() => {
     const interval = setInterval(() => {
       document.body.style.transition = "background 5s ease";
@@ -58,77 +60,85 @@ const MoodPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // 👤 Fetch user profile
   useEffect(() => {
-  const fetchUserProfile = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUserProfile(res.data);
-    } catch (err) {
-      console.error("❌ Error fetching profile:", err);
-    }
-  };
+    const fetchUserProfile = async () => {
+      try {
+        const res = await api.get("/users/profile");
+        setUserProfile(res.data);
+      } catch (err) {
+        console.error("❌ Error fetching profile:", err);
+      }
+    };
+    fetchUserProfile();
+  }, []);
 
-  fetchUserProfile();
-}, []);
+  // 🎶 Load Spotify user token from storage (set by OAuth callback)
+  useEffect(() => {
+    const t = localStorage.getItem("spotify_user_access_token") || "";
+    setSpotifyToken(t);
+  }, []);
 
   return (
-    <><div style={{ position: "absolute", top: "20px", right: "20px" }}>
-      <FaUserCircle
-        size={30}
-        style={{ cursor: "pointer" }}
-        onClick={() => setShowProfile(prev => !prev)} />
-
-      {showProfile && userProfile && (
-        <div style={{
-          position: "absolute",
-          top: "40px",
-          right: "0",
-          width: "250px",
-          backgroundColor: darkMode ? "#333" : "#fff",
-          color: darkMode ? "#fff" : "#000",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          padding: "10px",
-          zIndex: 1000,
-        }}>
-          <h3>{userProfile.name}</h3>
-          <h4>Mood History:</h4>
-          <ul style={{ maxHeight: "200px", overflowY: "auto", padding: "0 10px" }}>
-            {userProfile.moods.length === 0 ? (
-              <li>No moods yet</li>
-            ) : (
-              userProfile.moods.map((mood, idx) => (
-                <li key={idx}>
-                  {mood.mood} — {new Date(mood.createdAt).toLocaleDateString()}
-                </li>
-              ))
-            )}
-          </ul>
-          <button
-            onClick={() => {
-              localStorage.removeItem("token");
-              window.location.reload(); // simple logout
-            } }
-            style={{ marginTop: "10px" }}
+    <>
+      {/* Profile dropdown */}
+      <div style={{ position: "absolute", top: "20px", right: "20px" }}>
+        <FaUserCircle
+          size={30}
+          style={{ cursor: "pointer" }}
+          onClick={() => setShowProfile((prev) => !prev)}
+        />
+        {showProfile && userProfile && (
+          <div
+            style={{
+              position: "absolute",
+              top: "40px",
+              right: "0",
+              width: "250px",
+              backgroundColor: darkMode ? "#333" : "#fff",
+              color: darkMode ? "#fff" : "#000",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              padding: "10px",
+              zIndex: 1000,
+            }}
           >
-            Logout
-          </button>
-        </div>
-      )}
-    </div>
-    <div
-      className={styles.dashboardContainer}
-      style={{
-        backgroundImage: `url(${pianoImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        minHeight: "100vh",
-      }}
-    >
+            <h3>{userProfile.name}</h3>
+            <h4>Mood History:</h4>
+            <ul style={{ maxHeight: "200px", overflowY: "auto", padding: "0 10px" }}>
+              {userProfile.moods.length === 0 ? (
+                <li>No moods yet</li>
+              ) : (
+                userProfile.moods.map((mood, idx) => (
+                  <li key={idx}>
+                    {mood.mood} — {new Date(mood.createdAt).toLocaleDateString()}
+                  </li>
+                ))
+              )}
+            </ul>
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                window.location.reload();
+              }}
+              style={{ marginTop: "10px" }}
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Main container */}
+      <div
+        className={styles.dashboardContainer}
+        style={{
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}
+      >
         <div className={`${styles.container} ${darkMode ? styles.dark : ""}`}>
           <div className={styles.logo}>
             <h2>MoodSync 🎧</h2>
@@ -136,6 +146,7 @@ const MoodPage = () => {
 
           <h1>🎭 Describe Your Mood</h1>
 
+          {/* Mood input */}
           <div className={styles.controls}>
             <textarea
               placeholder="How are you feeling today? Write something like 'I feel super energetic and excited!'"
@@ -147,7 +158,8 @@ const MoodPage = () => {
                 padding: "10px",
                 borderRadius: "8px",
                 fontSize: "1rem",
-              }} />
+              }}
+            />
 
             <select onChange={(e) => setLanguage(e.target.value)} value={language}>
               <option value="English">English</option>
@@ -168,6 +180,7 @@ const MoodPage = () => {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
+          {/* Recommended songs */}
           <div className={styles.results}>
             <h2>
               <FaMusic /> Recommended Songs:
@@ -178,41 +191,42 @@ const MoodPage = () => {
               <ul>
                 {recommendedSongs.map((track, idx) => (
                   <li key={idx} style={{ marginBottom: "16px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      {track.albumImage && (
-                        <img
-                          src={track.albumImage}
-                          alt={track.album || "Album Cover"}
-                          style={{ width: 60, height: 60, borderRadius: 4 }} />
-                      )}
-                      <div>
-                        <a
-                          href={track.spotifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ fontWeight: "bold", fontSize: "1rem" }}
-                        >
-                          🎵 {track.title}
-                        </a>
-                        <p style={{ margin: 0 }}>{track.artist}</p>
-                        {track.album && (
-                          <p style={{ margin: 0, fontStyle: "italic" }}>{track.album}</p>
-                        )}
-                        {track.preview && (
-                          <audio
-                            controls
-                            src={track.preview}
-                            style={{ marginTop: "4px", width: "100%" }} />
-                        )}
-                      </div>
-                    </div>
+                    <img
+                      src={track.albumImage}
+                      alt={track.title}
+                      style={{
+                        width: "64px",
+                        height: "64px",
+                        borderRadius: "4px",
+                        marginRight: "8px",
+                      }}
+                    />
+                    <strong>🎵 {track.title}</strong>
+                    <p style={{ margin: 0 }}>{track.artist}</p>
+                    {track.album && (
+                      <p style={{ margin: 0, fontStyle: "italic" }}>{track.album}</p>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
           </div>
+
+          {/* 🎶 Spotify Web Playback Player */}
+          <div style={{ marginTop: "30px" }}>
+            <h2>Spotify Player</h2>
+            {spotifyToken ? (
+              <SpotifyPlayer token={spotifyToken} />
+            ) : (
+              <div>
+                <p>Connect your Spotify account to enable playback.</p>
+                <button onClick={connectSpotify}>Connect Spotify</button>
+              </div>
+            )}
+          </div>
         </div>
-      </div></>
+      </div>
+    </>
   );
 };
 
