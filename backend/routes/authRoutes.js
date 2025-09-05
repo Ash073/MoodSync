@@ -43,8 +43,10 @@ router.get("/callback", async (req, res) => {
 
     const access_token = response.data.access_token;
     const refresh_token = response.data.refresh_token;
-    const frontendBase = process.env.FRONTEND_URL || "https://moodsync-12.onrender.com/";
-    const redirectUrl = `${frontendBase}/spotify/callback?access_token=${encodeURIComponent(
+    const rawFrontend = process.env.FRONTEND_URL || "http://localhost:5173";
+    const frontendBase = rawFrontend.replace(/\/$/, "");
+    // Use hash route to avoid 404s on static hosts
+    const redirectUrl = `${frontendBase}/#/spotify/callback?access_token=${encodeURIComponent(
       access_token || ""
     )}&refresh_token=${encodeURIComponent(refresh_token || "")}`;
 
