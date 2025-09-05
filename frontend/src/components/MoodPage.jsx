@@ -17,7 +17,7 @@ const MoodPage = () => {
   const [spotifyToken, setSpotifyToken] = useState("");
 
   const connectSpotify = () => {
-    window.location.href = "http://localhost:5000/api/auth/login";
+    window.location.href = "http://moodsync-12.onrender:5000/api/auth/login";
   };
 
   // 🌗 Toggle theme
