@@ -28,6 +28,10 @@ router.get("/login", (req, res) => {
 router.get("/callback", async (req, res) => {
   const code = req.query.code || null;
 
+  if (!code) {
+    return res.status(400).json({ error: "No authorization code provided" });
+  }
+
   try {
     const response = await axios.post(
       "https://accounts.spotify.com/api/token",
@@ -45,15 +49,32 @@ router.get("/callback", async (req, res) => {
     const refresh_token = response.data.refresh_token;
     const rawFrontend = process.env.FRONTEND_URL || "http://localhost:5173";
     const frontendBase = rawFrontend.replace(/\/$/, "");
-    // Use hash route to avoid 404s on static hosts
+    // Use regular route since we're using HashRouter
     const redirectUrl = `${frontendBase}/#/spotify/callback?access_token=${encodeURIComponent(
       access_token || ""
     )}&refresh_token=${encodeURIComponent(refresh_token || "")}`;
 
     res.redirect(302, redirectUrl);
   } catch (err) {
-    res.status(400).json({ error: err.response.data });
+    console.error("❌ Spotify callback error:", err.response?.data || err.message);
+    res.status(400).json({ 
+      error: err.response?.data?.error_description || "Failed to exchange code for token" 
+    });
   }
+});
+
+// Test endpoint to verify auth routes are working
+router.get("/test", (req, res) => {
+  res.json({ 
+    message: "Auth routes are working!",
+    timestamp: new Date().toISOString(),
+    env: {
+      hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
+      hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET,
+      hasRedirectUri: !!process.env.REDIRECT_URI,
+      hasFrontendUrl: !!process.env.FRONTEND_URL
+    }
+  });
 });
 
 export default router;

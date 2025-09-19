@@ -1,7 +1,13 @@
 import axios from "axios";
 
+const baseURL =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_URL) ||
+  (typeof window !== "undefined" && window.location && window.location.hostname === "localhost"
+    ? "http://localhost:5000/api"
+    : "https://moodsync-2-o7ws.onrender.com/api");
+
 const api = axios.create({
-  baseURL: "https://moodsync-2-o7ws.onrender.com/api", // your backend deployed on Render
+  baseURL,
 });
 
 // Attach token if available

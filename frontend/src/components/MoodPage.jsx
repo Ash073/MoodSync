@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import styles from "../styles/Dashboard.module.css";
 import { FaMusic, FaUserCircle } from "react-icons/fa";
 import SpotifyPlayer from "../components/SpotifyPlayer";
 
 const MoodPage = () => {
+  const navigate = useNavigate();
   const [moodInput, setMoodInput] = useState("");
   const [language, setLanguage] = useState("English");
   const [darkMode, setDarkMode] = useState(false);
@@ -37,9 +39,19 @@ const MoodPage = () => {
     setError("");
 
     try {
-      console.log("Sending mood and language:", { moodInput, language });
+      console.log("🎯 Frontend - Sending mood and language:", { 
+        moodInput, 
+        language,
+        timestamp: new Date().toISOString()
+      });
 
       const res = await api.post("/moods", { moodSentence: moodInput, language });
+
+      console.log("✅ Frontend - Received response:", {
+        detectedMood: res.data.detectedMood,
+        recommendationsCount: res.data.recommendations?.length || 0,
+        sampleTracks: res.data.recommendations?.slice(0, 3).map(t => `${t.title} by ${t.artist}`) || []
+      });
 
       setDetectedMood(res.data.detectedMood || "");
       setRecommendedSongs(res.data.recommendations || []);
@@ -82,52 +94,126 @@ const MoodPage = () => {
     setSpotifyToken(t);
   }, []);
 
+  // Click outside handler for profile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showProfile && !event.target.closest(`.${styles.profileContainer}`)) {
+        setShowProfile(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showProfile]);
+
   return (
     <>
-      {/* Profile dropdown */}
-      <div style={{ position: "absolute", top: "20px", right: "20px" }}>
-        <FaUserCircle
-          size={30}
-          style={{ cursor: "pointer" }}
+      {/* Enhanced Profile dropdown */}
+      <div className={styles.profileContainer}>
+        <button 
+          className={styles.profileButton}
           onClick={() => setShowProfile((prev) => !prev)}
-        />
+        >
+          <FaUserCircle className={styles.profileIcon} />
+          <span className={styles.profileText}>Profile</span>
+        </button>
+        
         {showProfile && userProfile && (
-          <div
-            style={{
-              position: "absolute",
-              top: "40px",
-              right: "0",
-              width: "250px",
-              backgroundColor: darkMode ? "#333" : "#fff",
-              color: darkMode ? "#fff" : "#000",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "10px",
-              zIndex: 1000,
-            }}
-          >
-            <h3>{userProfile.name}</h3>
-            <h4>Mood History:</h4>
-            <ul style={{ maxHeight: "200px", overflowY: "auto", padding: "0 10px" }}>
-              {userProfile.moods.length === 0 ? (
-                <li>No moods yet</li>
-              ) : (
-                userProfile.moods.map((mood, idx) => (
-                  <li key={idx}>
-                    {mood.mood} — {new Date(mood.createdAt).toLocaleDateString()}
-                  </li>
-                ))
-              )}
-            </ul>
-            <button
-              onClick={() => {
-                localStorage.removeItem("token");
-                window.location.reload();
-              }}
-              style={{ marginTop: "10px" }}
-            >
-              Logout
-            </button>
+          <div className={styles.profileDropdown}>
+            <div className={styles.profileHeader}>
+              <div className={styles.profileAvatar}>
+                <FaUserCircle className={styles.avatarIcon} />
+              </div>
+              <div className={styles.profileInfo}>
+                <h3 className={styles.profileName}>{userProfile.name}</h3>
+                <p className={styles.profileEmail}>{userProfile.email}</p>
+              </div>
+            </div>
+
+            <div className={styles.profileStats}>
+              <div className={styles.statItem}>
+                <span className={styles.statNumber}>{userProfile.moods?.length || 0}</span>
+                <span className={styles.statLabel}>Moods Tracked</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statNumber}>
+                  {userProfile.moods?.reduce((total, mood) => total + (mood.recommendations?.length || 0), 0) || 0}
+                </span>
+                <span className={styles.statLabel}>Songs Discovered</span>
+              </div>
+            </div>
+
+            <div className={styles.moodHistory}>
+              <h4 className={styles.historyTitle}>
+                <FaMusic className={styles.historyIcon} />
+                Recent Moods & Songs
+              </h4>
+              <div className={styles.historyList}>
+                {userProfile.moods?.length === 0 ? (
+                  <div className={styles.emptyHistory}>
+                    <p>No moods tracked yet</p>
+                    <p className={styles.emptySubtext}>Start by describing your mood above!</p>
+                  </div>
+                ) : (
+                  userProfile.moods.slice(0, 5).map((mood, idx) => (
+                    <div key={idx} className={styles.moodItem}>
+                      <div className={styles.moodHeader}>
+                        <span className={styles.moodType}>{mood.mood}</span>
+                        <span className={styles.moodDate}>
+                          {new Date(mood.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className={styles.moodDetails}>
+                        <span className={styles.moodLanguage}>🌍 {mood.language}</span>
+                        <span className={styles.songCount}>
+                          🎵 {mood.recommendations?.length || 0} songs
+                        </span>
+                      </div>
+                      {mood.recommendations && mood.recommendations.length > 0 && (
+                        <div className={styles.recentSongs}>
+                          {mood.recommendations.slice(0, 2).map((song, songIdx) => (
+                            <div key={songIdx} className={styles.songPreview}>
+                              <img 
+                                src={song.albumImage} 
+                                alt={song.title}
+                                className={styles.songThumbnail}
+                              />
+                              <div className={styles.songInfo}>
+                                <p className={styles.songTitle}>{song.title}</p>
+                                <p className={styles.songArtist}>{song.artist}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className={styles.profileActions}>
+              <button 
+                className={styles.logoutButton}
+                onClick={() => {
+                  // Clear all stored tokens
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("spotify_user_access_token");
+                  localStorage.removeItem("spotify_user_refresh_token");
+                  
+                  // Close profile dropdown
+                  setShowProfile(false);
+                  
+                  // Redirect to login page
+                  navigate("/login");
+                }}
+              >
+                <span>🚪</span>
+                <span>Logout</span>
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -147,34 +233,66 @@ const MoodPage = () => {
             <h2>MoodSync</h2>
           </div>
 
-          <h1>Describe Your Mood</h1>
+          <div className={styles.heroSection}>
+            <h1 className={styles.heroTitle}>
+              🎭 Describe Your <span className={styles.gradientText}>Mood</span>
+            </h1>
+            <p className={styles.heroSubtitle}>
+              Share how you're feeling and let our AI create the perfect soundtrack for your emotions
+            </p>
+          </div>
 
           {/* Mood input */}
           <div className={styles.controls}>
+            <div className={styles.inputContainer}>
             <textarea
-              placeholder="How are you feeling today? Write something like 'I feel super energetic and excited!'"
+                placeholder="How are you feeling today? Write something like 'I feel super energetic and excited!' or 'I'm feeling a bit sad and need some comfort music'"
               value={moodInput}
               onChange={(e) => setMoodInput(e.target.value)}
               rows={4}
-              style={{
-                fontFamily: "Arial, sans-serif",
-                width: "100%",
-                padding: "10px",
-                borderRadius: "8px",
-                fontSize: "1.2rem",
-              }}
-            />
+                className={styles.moodTextarea}
+              />
+              <div className={styles.characterCount}>
+                {moodInput.length}/500
+              </div>
+            </div>
 
-            <select onChange={(e) => setLanguage(e.target.value)} value={language}>
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Tamil">Tamil</option>
-              <option value="Punjabi">Punjabi</option>
-              <option value="Telugu">Telugu</option>
+            <div className={styles.languageContainer}>
+              <label className={styles.languageLabel}>
+                Language: <span className={styles.selectedLanguage}>{language}</span>
+              </label>
+              <select 
+                onChange={(e) => {
+                  console.log("🌍 Language changed to:", e.target.value);
+                  setLanguage(e.target.value);
+                }} 
+                value={language}
+                className={styles.languageSelect}
+              >
+                <option value="English">🇺🇸 English</option>
+                <option value="Hindi">🇮🇳 Hindi</option>
+                <option value="Tamil">🇮🇳 Tamil</option>
+                <option value="Punjabi">🇮🇳 Punjabi</option>
+                <option value="Telugu">🇮🇳 Telugu</option>
             </select>
+            </div>
 
-            <button onClick={handleSaveMood} disabled={loading}>
-              {loading ? "🎼 Saving..." : "🎼 Save Mood"}
+            <button 
+              onClick={handleSaveMood} 
+              disabled={loading || !moodInput.trim()}
+              className={styles.saveButton}
+            >
+              {loading ? (
+                <div className={styles.loadingContainer}>
+                  <div className={styles.loadingSpinner}></div>
+                  <span>Analyzing your mood...</span>
+                </div>
+              ) : (
+                <div className={styles.buttonContent}>
+                  <span>🎼</span>
+                  <span>Discover My Music</span>
+                </div>
+              )}
             </button>
           </div>
 
@@ -184,35 +302,63 @@ const MoodPage = () => {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
+          {/* Detected Mood Display */}
+          {detectedMood && (
+            <div className={styles.moodDisplay}>
+              <div className={styles.moodCard}>
+                <div className={styles.moodIcon}>🎭</div>
+                <div className={styles.moodInfo}>
+                  <h3>Detected Mood</h3>
+                  <p className={styles.moodValue}>{detectedMood}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Recommended songs */}
           <div className={styles.results}>
-            <h2>
-              Recommended Songs:
-            </h2>
+            <div className={styles.resultsHeader}>
+              <h2>
+                <FaMusic className={styles.resultsIcon} />
+                Your Personalized Playlist
+              </h2>
+              {recommendedSongs.length > 0 && (
+                <p className={styles.resultsSubtitle}>
+                  {recommendedSongs.length} songs that match your mood
+                </p>
+      )}
+    </div>
+
             {recommendedSongs.length === 0 ? (
-              <p>No songs yet. Describe your mood above 👆</p>
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>🎵</div>
+                <h3>No songs yet</h3>
+                <p>Describe your mood above to discover your perfect soundtrack</p>
+              </div>
             ) : (
-              <ul>
+              <div className={styles.songsGrid}>
                 {recommendedSongs.map((track, idx) => (
-                  <li key={idx} style={{ marginBottom: "16px" }}>
-                    <img
-                      src={track.albumImage}
-                      alt={track.title}
-                      style={{
-                        width: "64px",
-                        height: "64px",
-                        borderRadius: "4px",
-                        marginRight: "8px",
-                      }}
-                    />
-                    <strong>🎵 {track.title}</strong>
-                    <p style={{ margin: 0 }}>{track.artist}</p>
+                  <div key={idx} className={styles.songCard}>
+                    <div className={styles.songImageContainer}>
+                      <img
+                        src={track.albumImage}
+                        alt={track.title}
+                        className={styles.songImage}
+                      />
+                      <div className={styles.playOverlay}>
+                        <span>▶️</span>
+                      </div>
+                    </div>
+                    <div className={styles.songInfo}>
+                      <h4 className={styles.songTitle}>{track.title}</h4>
+                      <p className={styles.songArtist}>{track.artist}</p>
                     {track.album && (
-                      <p style={{ margin: 0, fontStyle: "italic" }}>{track.album}</p>
-                    )}
-                  </li>
+                        <p className={styles.songAlbum}>{track.album}</p>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 
@@ -224,9 +370,14 @@ const MoodPage = () => {
             ) : (
               <div>
                 <p>Connect your Spotify account to enable playback.</p>
-                <a href={getSpotifyAuthUrl()}>
-                  <button type="button">Connect Spotify</button>
-                </a>
+                <a href={getSpotifyAuthUrl()} style={{
+                  display: "inline-block",
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  background: "#1DB954",
+                  color: "#fff",
+                  textDecoration: "none"
+                }}>Connect Spotify</a>
               </div>
             )}
           </div>

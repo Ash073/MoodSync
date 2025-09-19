@@ -39,10 +39,12 @@ export const addMood = async (req, res) => {
 
     const mood = detectMood(moodSentence);
     console.log("🔍 Detected Mood:", mood);
+    console.log("🌍 Selected Language:", language);
 
     let recommendations = [];
     try {
       recommendations = await getTracksByMood(mood, language);
+      console.log(`✅ Found ${recommendations.length} recommendations for ${language}`);
     } catch (error) {
       console.error("⚠ Spotify fetch failed:", error.message);
     }
